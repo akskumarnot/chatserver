@@ -15,7 +15,7 @@ myserver(QObject *parent=0);
 public slots:
 
 void startServer();
-void broadcasted(QString,QTcpSocket*);
+void broadcasted(QString,QTcpSocket*,int);
 void readyReading();
 
 protected:

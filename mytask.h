@@ -14,7 +14,7 @@ void run();
 QString recstr;
 
 signals:
-void broadcast(QString,QTcpSocket*);
+void broadcast(QString,QTcpSocket*,int);
 
 private:
 QTcpSocket *soc;

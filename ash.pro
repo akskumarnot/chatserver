@@ -8,7 +8,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 QT+=network
-
+QT+=sql
 # Input
 HEADERS += myserver.h mytask.h
 SOURCES += main.cpp myserver.cpp mytask.cpp

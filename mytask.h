@@ -11,10 +11,14 @@ Q_OBJECT
 public:
 mytask(QTcpSocket *,QObject * parent=0);
 void run();
+void insertperson(QString str);
+void removeperson(QString str);
 QString recstr;
+int number_group(QString);
 
 signals:
 void broadcast(QString,QTcpSocket*,int);
+
 
 private:
 QTcpSocket *soc;

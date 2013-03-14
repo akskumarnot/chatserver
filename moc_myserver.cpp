@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'myserver.h'
 **
-** Created: Sat Mar 9 00:56:50 2013
+** Created: Wed Mar 13 17:55:51 2013
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -32,15 +32,15 @@ static const uint qt_meta_data_myserver[] = {
 
  // slots: signature, parameters, type, tag, flags
       10,    9,    9,    9, 0x0a,
-      26,   24,    9,    9, 0x0a,
-      59,    9,    9,    9, 0x0a,
+      27,   24,    9,    9, 0x0a,
+      64,    9,    9,    9, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_myserver[] = {
-    "myserver\0\0startServer()\0,\0"
-    "broadcasted(QString,QTcpSocket*)\0"
+    "myserver\0\0startServer()\0,,\0"
+    "broadcasted(QString,QTcpSocket*,int)\0"
     "readyReading()\0"
 };
 
@@ -51,7 +51,7 @@ void myserver::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         myserver *_t = static_cast<myserver *>(_o);
         switch (_id) {
         case 0: _t->startServer(); break;
-        case 1: _t->broadcasted((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QTcpSocket*(*)>(_a[2]))); break;
+        case 1: _t->broadcasted((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QTcpSocket*(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
         case 2: _t->readyReading(); break;
         default: ;
         }

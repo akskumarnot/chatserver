@@ -66,6 +66,7 @@ void myserver::incomingConnection(int handle)
 {
 qDebug()<<"got new connection";
 QTcpSocket *soc=new QTcpSocket();
+qDebug()<<soc<<"was created";
 soc->setSocketDescriptor(handle);
 connect(soc,SIGNAL(readyRead()),this,SLOT(readyReading()));
 }
@@ -73,7 +74,6 @@ connect(soc,SIGNAL(readyRead()),this,SLOT(readyReading()));
 void myserver::readyReading()
 {
    QTcpSocket *socket=(QTcpSocket *)QObject::sender();
-    qDebug()<<socket;
    mytask *task=new mytask(socket);
    QThreadPool::globalInstance()->start(task);
     task->setAutoDelete(true);
@@ -96,35 +96,43 @@ void myserver::broadcasted(QString str,QTcpSocket *soc,int mode)
 	}
 
 
-	if(mode==0)
-	{QStringList l=str.split("$");
-	QString gpname=l.at(2);
-	
-	peoplelist *pl=firstgroup;
-	while(pl->nextgroup!=NULL && (pl->group_name!=l.at(3)))
-	{
-		pl=pl->nextgroup;
-	}
-	
-		people *gp=pl->group;
+	if(mode==0 || mode==2)
+	{	
+		QStringList l=str.split("$");
+		QString gpname=l.at(2);
 		
-			while(gp->nextperson!=NULL)
+	
+		peoplelist *pl=firstgroup->nextgroup;
+		while(pl!=NULL && (pl->group_name!=gpname))
+		{
+		pl=pl->nextgroup;
+		}
+		
+		
+		people *gp=pl->group;
+
+			if(gp==NULL){return;qDebug()<<"kisko bhejoon??";}
+		
+			while(gp!=NULL)
 				{
-				if(soc!=gp->person)
-					{
-						QByteArray ar;
-						ar.append("<");
-		 				ar.append(gp->person_name);
-						 ar.append(">");
-	         				ar.append(l.at(3));
-	         				gp->person->write(ar);
-		 				gp->person->flush();
-		 				gp->person->waitForBytesWritten();
+				if(gp->person_name!=l.at(3))
+					{	
+						QTcpSocket *s=new QTcpSocket();
+						s->setSocketDescriptor(gp->person->socketDescriptor());
+						QByteArray a;
+						if(mode==2)
+						a.append(l.at(4));	
+						else{a.append(gp->person_name+" : "+l.at(4));}
+						s->write(a);
+						s->flush();
+						s->waitForBytesWritten();	
 					}	
-					gp=gp->nextperson;			
+					gp=gp->nextperson;
+										
 				}
 
-	return;	
+	return;
+		
 	}
 }
 

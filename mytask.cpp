@@ -12,7 +12,6 @@ extern peoplelist *firstgroup;
 
 mytask::mytask(QTcpSocket* soc,QObject * parent):QObject(parent)
 {
-Q_UNUSED(parent);
 this->soc=soc;
 }
 
@@ -21,20 +20,24 @@ void mytask::run()
 QByteArray arr=soc->readAll();
 QString str(arr);
 //adding the person
+
 	if(str.left(6)=="$room$")
-	{
-	insertperson(str);
-	//send message to everyone that person joined room
+	{insertperson(str);
+	QStringList abc=str.split("$");
+	QString nu="$room$"+abc.at(2)+"$"+abc.at(3)+"$"+abc.at(3)+" joined the room$";
+	emit broadcast(nu,soc,2);
 	return;
 	}
 //adding over	
 
 
 //removing the person
-	if(str.left(4)=="$bye$")
-	{
-	removeperson(str);
-	//send message to everyone that person left room
+	if(str.left(5)=="$bye$")
+	{removeperson(str);
+	QStringList abc=str.split("$");
+	QString nu="$room$"+abc.at(2)+"$"+abc.at(3)+"$"+abc.at(3)+" said buh-bye$";
+	qDebug()<<nu;
+	emit broadcast(nu,soc,2);
 	return;
 	}
 //removing over
@@ -43,7 +46,7 @@ QString str(arr);
 //signing the person in
 
 	if(str.left(7)=="$signin")
-	{
+	{qDebug()<<soc<<"wants to signin";
 	 QStringList list=str.split("$");
 	 QString name=list[2];
 	 QString pass=list[3];
@@ -70,14 +73,13 @@ QString str(arr);
 	            		}
 	 		db.close();
 		return;
-		
 	   }
 //signing over
 
 
 //send data for populating the client chat list
    	 if(str.left(6)=="$list$")
-	{
+	{qDebug()<<soc<<"wants the list";
 		QSqlDatabase db=QSqlDatabase::addDatabase("QSQLITE");
 		db.setDatabaseName("table.db");
 		if(!db.open())
@@ -104,8 +106,8 @@ QString str(arr);
    	
   if(str.left(9)=="$message$")
 	{
-	emit broadcast(str,soc,0);	
-	return;
+	qDebug()<<soc<<"wants to send message";
+	emit broadcast(str,soc,0);
 	}
 }
 
@@ -119,17 +121,20 @@ QStringList l=str.split("$");
 		while(temp1!=NULL && temp1->group_name!=l.at(2))
 			{
 				temp1=temp1->nextgroup;
-			}
-	 	
+			}							
+	
+									
 		if(temp1==NULL){return;}
+	
 
 		if(temp1->group==NULL)
-			{
+			{											
 			   temp1->group=new people();
 			   temp1->group->person_name=l.at(3);
 			   temp1->group->nextperson=NULL;
 			   temp1->group->person=soc;
-			   qDebug()<<temp1->group->person_name<<"joined";	
+			   qDebug()<<soc<<"and"<<temp1->group->person<<"should be same";
+			   	
 			}
 		else
 		  {
@@ -138,6 +143,8 @@ QStringList l=str.split("$");
 			 {
 				temp2=temp2->nextperson;
 			 }
+			
+			
 			temp2->nextperson=new people();
 			temp2=temp2->nextperson;
 
@@ -147,8 +154,8 @@ QStringList l=str.split("$");
 			temp2->nextperson=NULL;
 			
 		  }
-	qDebug()<<"insertion ends";
-}
+
+}	
 
 void mytask::removeperson(QString str)
 {
@@ -159,25 +166,29 @@ QStringList l=str.split("$");
 	while(temp1->nextgroup!=NULL && temp1->group_name!=l.at(2))
 	{temp1=temp1->nextgroup;}
 	
+	qDebug()<<"removing from group"<<temp1->group_name;
 	people *temp2=temp1->group;
 	people *prev=NULL;
-
-
-	if(temp2->person==soc)
+	
+	qDebug()<<temp2;
+	if(temp2->person_name==l.at(3))
 		{
 		temp1->group=temp2->nextperson;
 		delete temp2;
+		temp2=NULL;
 		}
 	else{
-		while(temp2->person!=soc)
+		while(temp2->person_name!=l.at(3))
 			{prev=temp2;temp2=temp2->nextperson;}
 
 			prev->nextperson=temp2->nextperson;
 			qDebug()<<temp2->person_name<<"is leaving";
 			delete temp2;
+			temp2=NULL;
 	    }	
-	//deleted the socket form the list
-	qDebug()<<"removal ends";
+	
+
+	
 }
 
 int mytask::number_group(QString grp)
@@ -193,7 +204,7 @@ int number=0;
 people *ppl=p->group;
 while(ppl->nextperson!=NULL)
   {ppl=ppl->nextperson;number++;}
-return number;		
+return number;	
 }
 
 

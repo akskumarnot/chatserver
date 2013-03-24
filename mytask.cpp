@@ -24,11 +24,13 @@ QString str(arr);
 	if(str.left(6)=="$room$")
 	{insertperson(str);
 	QStringList abc=str.split("$");
+	emit broadcast(list_people(abc.at(2)),soc,1);
+	qDebug()<<list_people(abc.at(2));
 	QString nu="$room$"+abc.at(2)+"$"+abc.at(3)+"$"+abc.at(3)+" joined the room$";
 	emit broadcast(nu,soc,2);
 	return;
 	}
-//adding over	
+//adding over
 
 
 //removing the person
@@ -103,12 +105,77 @@ QString str(arr);
 	    return;
 	}
 //send data to populate
+
+
+
+if(str.left(7)=="$check$")
+	{	
+		QStringList abc=str.split("$");
+		QSqlDatabase db=QSqlDatabase::addDatabase("QSQLITE");
+		db.setDatabaseName("table.db");
+		
+		if(!db.open())
+			{qDebug() << db.lastError();
+			qDebug( "Failed to connect.");}
+			
+		QSqlQuery qry;
+
+		if(!qry.exec("select username from login"))
+			{qDebug()<<qry.lastError();return;}
+		
+		int fl=0;
+		while(qry.next())
+		{	
+			if(qry.value(0).toString()==abc.at(2))
+			{
+			emit broadcast("$nonvalidated$",soc,1);
+			qDebug()<<"already there";fl=1;break;}
+		
+		}
+
+		if(fl==0)
+		{emit broadcast("$validated$",soc,1);}
+	db.close();
+	return;
+	}
+
+	if(str.left(8)=="$signup$")
+	{
+	qDebug()<<"signup here";
+	QStringList lol=str.split("$");
+	
+		QSqlDatabase db=QSqlDatabase::addDatabase("QSQLITE");
+		db.setDatabaseName("table.db");
+		
+		if(!db.open())
+			{qDebug() << db.lastError();
+			qDebug( "Failed to connect.");}
+			
+		QSqlQuery qry;
+		QString val="insert into people values('";
+		val.append(lol.at(2)+"','"+lol.at(3)+"','"+lol.at(4)+"')");
+		qDebug()<<val;
+		if(!qry.exec(val))
+		{qDebug()<<qry.lastError();return;}
+
+		QString val1="insert into login values('";
+		val1.append(lol.at(2)+"','"+lol.at(4)+"')");
+		qDebug()<<val1;
+		if(!qry.exec(val1))
+		{qDebug()<<qry.lastError();return;}
+
+	return;
+	}
    	
   if(str.left(9)=="$message$")
 	{
 	qDebug()<<soc<<"wants to send message";
 	emit broadcast(str,soc,0);
 	}
+
+
+
+
 }
 
 
@@ -206,6 +273,24 @@ while(ppl->nextperson!=NULL)
   {ppl=ppl->nextperson;number++;}
 return number;	
 }
+
+
+QString mytask::list_people(QString grp)
+	{
+	peoplelist *p=firstgroup->nextgroup;
+	
+	while(p->nextgroup!=NULL && p->group_name!=grp)	
+		{
+		p=p->nextgroup;		
+		}
+	
+	people *ppl=p->group;
+	QString names="$names$";
+	while(ppl!=NULL)
+ 		{names+=ppl->person_name+"$";ppl=ppl->nextperson;}
+	qDebug()<<"here2";
+	return names; 	
+	}
 
 
 

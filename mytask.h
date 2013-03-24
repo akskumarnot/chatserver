@@ -15,7 +15,7 @@ void insertperson(QString str);
 void removeperson(QString str);
 QString recstr;
 int number_group(QString);
-
+QString list_people(QString);
 signals:
 void broadcast(QString,QTcpSocket*,int);
 

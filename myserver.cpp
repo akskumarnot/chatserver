@@ -101,7 +101,7 @@ void myserver::broadcasted(QString str,QTcpSocket *soc,int mode)
 		QStringList l=str.split("$");
 		QString gpname=l.at(2);
 		
-	
+			
 		peoplelist *pl=firstgroup->nextgroup;
 		while(pl!=NULL && (pl->group_name!=gpname))
 		{
@@ -121,8 +121,9 @@ void myserver::broadcasted(QString str,QTcpSocket *soc,int mode)
 						s->setSocketDescriptor(gp->person->socketDescriptor());
 						QByteArray a;
 						if(mode==2)
-						a.append(l.at(4));	
-						else{a.append(gp->person_name+" : "+l.at(4));}
+						{a.append("$room$"+l.at(4));
+						}
+						else{a.append(l.at(3)+" : "+l.at(4));}
 						s->write(a);
 						s->flush();
 						s->waitForBytesWritten();	

@@ -11,5 +11,5 @@ INCLUDEPATH += .
 QT+=sql
 QT+=network
 # Input
-HEADERS += myserver.h mytask.h people.h peoplelist.h
-SOURCES += main.cpp myserver.cpp mytask.cpp people.cpp peoplelist.cpp
+HEADERS += myserver.h mytask.h people.h peoplelist.h privatecouple.h
+SOURCES += main.cpp myserver.cpp mytask.cpp people.cpp peoplelist.cpp privatecouple.cpp

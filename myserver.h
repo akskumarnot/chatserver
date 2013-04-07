@@ -16,6 +16,7 @@ public slots:
 
 void startServer();
 void broadcasted(QString,QTcpSocket*,int);
+void chatcast(QString, QTcpSocket*);
 void readyReading();
 
 protected:

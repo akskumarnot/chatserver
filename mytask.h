@@ -18,8 +18,7 @@ int number_group(QString);
 QString list_people(QString);
 signals:
 void broadcast(QString,QTcpSocket*,int);
-
-
+void chatcast(QString,QTcpSocket*);
 private:
 QTcpSocket *soc;
 int descriptor;

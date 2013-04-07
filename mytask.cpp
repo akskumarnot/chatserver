@@ -7,8 +7,10 @@
 #include<QSqlError>
 #include"people.h"
 #include"peoplelist.h"
+#include"privatecouple.h"
 
-extern peoplelist *firstgroup;
+extern peoplelist *firstgroup;int uid;
+extern privatecouple *privatelist;
 
 mytask::mytask(QTcpSocket* soc,QObject * parent):QObject(parent)
 {
@@ -166,15 +168,123 @@ if(str.left(7)=="$check$")
 
 	return;
 	}
-   	
+
+//private chat section
+
+	if(str.left(4)=="$pm$") 
+
+		{
+			QStringList abc=str.split("$");
+			if(abc.at(2)=="request")
+				{
+					QString gpname=abc.at(3);
+	
+					peoplelist *pl=firstgroup->nextgroup;
+					while(pl!=NULL && (pl->group_name!=gpname))
+						{
+						pl=pl->nextgroup;
+						}
+
+					if(pl==NULL)return;
+			
+					people *man2=pl->group;
+						
+						
+					while(man2!=NULL && man2->person_name!=abc.at(5))
+						{
+							man2=man2->nextperson;
+						}	
+
+				//man2 is the person jisko private chat se message bhejega soc
+					if(man2==NULL)return;												
+					
+					privatecouple * couple=privatelist;
+					
+					while(couple->nextcouple!=NULL && ((couple->name1!=abc.at(4) && couple->name2!=abc.at(5))||(couple->name1!=abc.at(5) && couple->name2!=abc.at(4))))
+						{
+							couple=couple->nextcouple;
+						}
+				
+
+				if(couple->nextcouple==NULL)	
+					{
+					couple->nextcouple = new privatecouple();
+					couple=couple->nextcouple;
+					couple->id=QString::number(++uid);
+					couple->name1=abc.at(4);
+					couple->name2=abc.at(5);
+					couple->one=soc;
+					couple->two=NULL;
+					couple->there1=true;
+					couple->there2=false;
+					//need to send the ids to both the men
+				
+						
+					emit chatcast("$pm$id$"+QString::number(uid),couple->one);
+					emit chatcast("$pm$openbox$"+QString::number(uid)+"$"+abc.at(3)+"$"+abc.at(4),man2->person);
+						
+					}
+				}
+
+		//adding non-initiator of chat
+
+		if(abc.at(2)=="addthisbox")
+			{
+				
+				qDebug()<<"trying ";
+				privatecouple * couple=privatelist->nextcouple;
+
+					if(couple==NULL)
+						{return;}
+				
+				while(couple!=NULL && couple->id!=abc.at(3))
+					{
+						couple=couple->nextcouple;
+					}	
+					
+				if(couple==NULL)return;										
+				
+				couple->two=soc;				
+				couple->there2=true;
+				couple->nextcouple=NULL;
+			}
+		//ending the adding
+
+
+			if(abc.at(2)=="message")
+					{
+						privatecouple *couple=privatelist->nextcouple;
+						
+	
+						while(couple->nextcouple!=NULL && ((couple->name1!=abc.at(4) && couple->name2!=abc.at(5))||(couple->name1!=abc.at(5) && couple->name2!=abc.at(4))))		
+							{qDebug()<<couple->id;
+								couple=couple->nextcouple;
+								
+							}
+						
+
+
+
+						if(couple==NULL){return;}
+							QTcpSocket *r;
+						if(couple->one==soc)
+							{r=couple->two;}							
+						else{r=couple->one;}
+
+						
+						emit chatcast("$pm$message$"+abc.at(5),r);			
+					
+					}	
+		return;
+		}
+
+
+//  	
   if(str.left(9)=="$message$")
 	{
 	qDebug()<<soc<<"wants to send message";
 	emit broadcast(str,soc,0);
 	}
-
-
-
 
 }
 

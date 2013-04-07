@@ -11,12 +11,13 @@
 #include<QSqlError>
 #include"peoplelist.h"
 #include"people.h"
+#include"privatecouple.h"
 
 peoplelist * firstgroup=new peoplelist();
-
+privatecouple * privatelist=new privatecouple();
 
 myserver::myserver(QObject *parent):QTcpServer(parent)
-{
+{privatelist->id="header";
 firstgroup->group_name="header";
 firstgroup->group=NULL;firstgroup->nextgroup=NULL;
 QThreadPool::globalInstance()->setMaxThreadCount(10);
@@ -78,6 +79,7 @@ void myserver::readyReading()
    QThreadPool::globalInstance()->start(task);
     task->setAutoDelete(true);
    connect(task,SIGNAL(broadcast(QString,QTcpSocket*,int)),this,SLOT(broadcasted(QString,QTcpSocket*,int)),Qt::DirectConnection);
+connect(task,SIGNAL(chatcast(QString,QTcpSocket*)),this,SLOT(chatcast(QString,QTcpSocket*)),Qt::DirectConnection);
 }
 
 void myserver::broadcasted(QString str,QTcpSocket *soc,int mode)
@@ -138,3 +140,12 @@ void myserver::broadcasted(QString str,QTcpSocket *soc,int mode)
 }
 
 
+void myserver::chatcast(QString str, QTcpSocket * aadmi)
+	{	
+		qDebug()<<"sunny deol comes here to message";
+		QByteArray arr;
+		arr.append(str);
+		aadmi->write(arr);
+		aadmi->flush();
+	 	aadmi->waitForBytesWritten();
+	}

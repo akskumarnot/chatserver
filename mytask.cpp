@@ -72,10 +72,14 @@ QString str(arr);
 				while(qry.next())
 				  {
 				      if(qry.value(0).toString()==name && qry.value(1).toString()==pass)
-					  {emit broadcast("$valid$",soc,1);}
-				  }		
+					  {emit broadcast("$valid$",soc,1);db.close();return;}
+		
+				  }
+
+				emit broadcast("$invalid$",soc,1);
+				db.close();		
 	            		}
-	 		db.close();
+	 		
 		return;
 	   }
 //signing over
